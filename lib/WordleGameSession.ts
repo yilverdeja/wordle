@@ -1,4 +1,4 @@
-enum LetterMatch {
+export enum LetterMatch {
 	Hit = "H",
 	Present = "P",
 	Miss = "M",
