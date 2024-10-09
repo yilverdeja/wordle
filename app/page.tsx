@@ -55,16 +55,16 @@ export default function Home() {
 					</div>
 				)}
 			</div>
-			{gameState.inSession && (
+			{gameState.sessionStatus !== "stopped" && (
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-col justify-center">
-						<p>ABCDE</p>
-						<p>OIRUS</p>
-						<p>KIEXD</p>
-						<p>QWESR</p>
-						<p>PORTT</p>
+						{gameState.results.map((result, index) => (
+							<div key={index}>
+								<p>{result.guess}</p>
+								<p>{result.result.join(" ")}</p>
+							</div>
+						))}
 					</div>
-					<p>Results!</p>
 				</div>
 			)}
 		</div>

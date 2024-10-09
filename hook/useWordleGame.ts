@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import WordleGame from "@/lib/WordleGame";
-import { SessionResults } from "@/lib/WordleGameSession";
+import { GuessResult, Status } from "@/lib/WordleGameSession";
 import { useCallback, useState } from "react";
 
 const useWordleGame = (initialWords: string[], maxTries: number) => {
@@ -8,20 +8,30 @@ const useWordleGame = (initialWords: string[], maxTries: number) => {
 
 	const [gameState, setGameState] = useState<{
 		inSession: boolean;
-		results: SessionResults[];
+		sessionStatus: Status | "stopped";
+		results: GuessResult[];
 	}>({
 		inSession: false,
+		sessionStatus: "stopped",
 		results: [],
 	});
 
 	const play = useCallback(() => {
 		game.play();
-		setGameState({ ...gameState, inSession: true });
+		setGameState({
+			results: [],
+			sessionStatus: "pending",
+			inSession: true,
+		});
 	}, [game, gameState]);
 
 	const stop = useCallback(() => {
 		game.stop();
-		setGameState({ ...gameState, inSession: false });
+		setGameState({
+			...gameState,
+			sessionStatus: "stopped",
+			inSession: false,
+		});
 	}, [game, gameState]);
 
 	const submitGuess = useCallback(
@@ -30,11 +40,13 @@ const useWordleGame = (initialWords: string[], maxTries: number) => {
 
 			if (!result) return;
 
-			console.log(guess, result);
-
 			if (result.status !== "pending") {
 				game.stop();
-				setGameState({ ...gameState, inSession: false });
+				setGameState({
+					...gameState,
+					sessionStatus: result.status,
+					inSession: false,
+				});
 			}
 
 			setGameState((prev) => ({

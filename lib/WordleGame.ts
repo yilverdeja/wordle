@@ -35,10 +35,6 @@ class WordleGame {
 		this.currentSession = null;
 	}
 
-	inPlay() {
-		return this.currentSession !== null;
-	}
-
 	submitGuess(guess: string) {
 		if (!this.currentSession) {
 			console.error("No active session. Please start a new game.");
