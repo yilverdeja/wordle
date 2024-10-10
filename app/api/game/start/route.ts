@@ -20,7 +20,6 @@ export interface SessionData {
 
 export async function POST(request: NextRequest) {
 	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
-	console.log("start api called");
 	const maxTries = 6;
 
 	// Initialize the game if not already started or if it finished
@@ -29,10 +28,29 @@ export async function POST(request: NextRequest) {
 		const randomWordsPosition = Math.floor(Math.random() * words.length);
 		session.game.answer = words[randomWordsPosition];
 		await session.save();
+
+		return new Response(
+			JSON.stringify({
+				status: session.game.status,
+				maxTries: session.game.maxNumTries,
+			}),
+			{
+				headers: { "Content-Type": "application/json" },
+			}
+		);
 	}
 
-	// Return only the necessary information to the client
-	return new Response(JSON.stringify({ message: "Game started", maxTries }), {
-		headers: { "Content-Type": "application/json" },
-	});
+	// Return error if a new game is being requested while it's ongoing
+	return new Response(
+		JSON.stringify({
+			status: session.game.status,
+			maxTries: session.game.maxNumTries,
+			tries: session.game.tries,
+			error: "A game is already active",
+		}),
+		{
+			status: 409,
+			headers: { "Content-Type": "application/json" },
+		}
+	);
 }

@@ -38,8 +38,6 @@ export async function POST(request: NextRequest) {
 	const data = await request.json();
 	const guess = data.guess;
 
-	console.log("guess api called", guess);
-
 	if (session.game && session.game.status === "pending" && guess) {
 		session.game.tries += 1;
 
@@ -87,9 +85,11 @@ export async function POST(request: NextRequest) {
 			}
 		);
 	} else {
-		console.log("ehhh", session.game);
 		return new Response(
-			JSON.stringify({ error: "No active game or invalid guess." }),
+			JSON.stringify({
+				status: session.game.status,
+				error: "No active game or invalid guess.",
+			}),
 			{
 				status: 400,
 				headers: { "Content-Type": "application/json" },

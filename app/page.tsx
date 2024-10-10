@@ -3,7 +3,7 @@
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
 import { GuessResult, LetterMatch } from "@/lib/wordle/WordleGameSession";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
 
 const buttonStyle =
@@ -26,17 +26,17 @@ export default function Home() {
 	const [guess, setGuess] = useState("");
 
 	const handleSubmitGuess = async () => {
-		console.log("submitted...", guess);
 		try {
 			const response = await axios.post("/api/game/guess", { guess });
 			console.log(response.data); // Handling the response data
 		} catch (error) {
-			console.error("Error submitting guess:", error);
+			if (error instanceof AxiosError)
+				console.error(error.response?.data);
+			else console.error("Error submitting guess:", error);
 		}
 	};
 
 	const handleStartGame = async () => {
-		console.log("started...");
 		try {
 			const response = await axios.post("/api/game/start");
 			console.log(response.data); // Handling the response data
