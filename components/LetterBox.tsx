@@ -1,4 +1,4 @@
-import { LetterMatch } from "@/lib/WordleGameSession";
+import { LetterMatch } from "@/lib/wordle/WordleGameSession";
 
 interface Props {
 	letter: string;

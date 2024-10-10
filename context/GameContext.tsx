@@ -1,6 +1,6 @@
 // GameContext.tsx
 import useWordleGame, { UseWordleGame } from "@/hook/useWordleGame";
-import WordleGame from "@/lib/WordleGame";
+import WordleGame from "@/lib/wordle/WordleGame";
 import React, { createContext, useContext, ReactNode } from "react";
 
 const GameContext = createContext<UseWordleGame | null>(null);
