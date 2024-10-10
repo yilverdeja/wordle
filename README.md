@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wordle
 
-## Getting Started
+## Normal Wordle
 
-First, run the development server:
+The game will select a 5-letter word (aka. answer) from a predefined list (configurable), all 5-letter words are expected to consist of English alphabet only and case-insensitive.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Implementation Idea
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-   WordleGameContext: Saves the state of the WordleGame in play
+-   WordleGame has startPlay
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+game = new WordleGame(max_num_rounds, word_list) -- stores max_num_rounds, word_list, sessions_list = []; current_session = null
+game.updateNumRounds() // getNumRounds
+game.updateWordList() // addToWordList // getWordList
+game.play() -- starts the game, sets up answer, and current_num_round to 0 (creates a new session)
+game.stop() -- stops the game (stops the current session, saves it to the game sessions list, then clears the session)
+game.makeGuess(guess) -- playe makes guess (only allowed if there is a current session in play)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+session = WordleGameSession(answer, max_num_rounds) -- sets answer, max_num_rounds, current_round = 0, status = "pending" | "win" | "lose", guesses = []
+session.makeGuess(guess) - returns a result with the status of the session after the guess, and an object that contains {hit: [], present: [], miss: []} the arrays of each will be the positions of the letters in the guess. hit means the letter is in the right spot, present is exists but wrong spot, and miss is letter is not part of the answer
 
-## Learn More
+-   **Game** selects 5 letter word as **ANSWER** from **predefined list** which is **configurable**
+-   Game must have MAX_NUM_ROUNDS and LIST_WORDS
+-   Rules: PLAYER wins if answer in MAX_NUM_ROUNDS, lose if not
+-   Guess: HIT - letter in correct spot, PRESENT - letter exist but not in spot, MISS - letter not correct
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+user story:
+USER enters APP
+USER selects start
+GAME starts --
+USER enters GUESS
+GAME checks GUESS to ANSWER
