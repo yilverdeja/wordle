@@ -10,11 +10,16 @@ const GameSettings = () => {
 	const [numGuesses, setNumGuesses] = useState(gameState.maxGuesses);
 	const [words, setWords] = useState(gameState.words.join(", "));
 	const [invalidWords, setInvalidWords] = useState("");
+	const [hide, setHide] = useState(true);
+
+	useEffect(() => {
+		if (gameState.inSession) setHide(true);
+	}, [gameState.inSession]);
 
 	useEffect(() => {
 		setNumGuesses(gameState.maxGuesses);
 		setWords(gameState.words.join(", "));
-	}, [gameState, gameState.maxGuesses, gameState.words]);
+	}, [gameState.maxGuesses, gameState.words]);
 
 	const handleDefaultSettings = () => {
 		setInvalidWords("");
@@ -47,53 +52,68 @@ const GameSettings = () => {
 			<h2 className="text-xl">Game Settings</h2>
 			<p>Current Max Guesses: {gameState.maxGuesses}</p>
 			<p>Current Number of Words: {gameState.words.length}</p>
-			<div className="flex flex-col gap-4">
-				<div>
-					<label htmlFor="guesses" className="block mb-2">
-						Max Guesses
-					</label>
-					<input
-						value={numGuesses}
-						onChange={(e) =>
-							setNumGuesses(parseInt(e.target.value))
-						}
-						type="number"
-						id="guesses"
-						className="w-full bg-slate-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
-					/>
-				</div>
-				<div>
-					<label htmlFor="words" className="block mb-2">
-						Words (comma-separated)
-					</label>
-					<textarea
-						value={words}
-						onChange={(e) => setWords(e.target.value)}
-						id="words"
-						className="w-full bg-slate-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
-						rows={4}
-					></textarea>
-				</div>
-				<button onClick={handleDefaultSettings} className={buttonStyle}>
-					Default Settings
-				</button>
-				<button onClick={handleUpdateSettings} className={buttonStyle}>
-					Update Settings
-				</button>
-				{invalidWords && (
-					<div className="flex flex-col gap-2">
-						<p className="text-red-500">
-							Some words are not exactly 5 letters long.
-						</p>
+			<button
+				onClick={() => setHide((prev) => !prev)}
+				className={buttonStyle}
+				disabled={gameState.inSession}
+			>
+				Toggle Settings
+			</button>
+			{!hide && (
+				<div className="flex flex-col gap-4">
+					<div>
+						<label htmlFor="guesses" className="block mb-2">
+							Max Guesses
+						</label>
+						<input
+							value={numGuesses}
+							onChange={(e) =>
+								setNumGuesses(parseInt(e.target.value))
+							}
+							type="number"
+							id="guesses"
+							className="w-full bg-slate-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
+						/>
+					</div>
+					<div>
+						<label htmlFor="words" className="block mb-2">
+							Words (comma-separated)
+						</label>
 						<textarea
-							value={invalidWords}
-							className="w-full bg-gray-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
-							disabled
-							rows={2}
+							value={words}
+							onChange={(e) => setWords(e.target.value)}
+							id="words"
+							className="w-full bg-slate-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
+							rows={4}
 						></textarea>
 					</div>
-				)}
-			</div>
+					<button
+						onClick={handleDefaultSettings}
+						className={buttonStyle}
+					>
+						Default Settings
+					</button>
+					<button
+						onClick={handleUpdateSettings}
+						className={buttonStyle}
+					>
+						Update Settings
+					</button>
+					{invalidWords && (
+						<div className="flex flex-col gap-2">
+							<p className="text-red-500">
+								Some words are not exactly 5 letters long.
+							</p>
+							<textarea
+								value={invalidWords}
+								className="w-full bg-gray-100 rounded-md h-10 py-2 px-4 border-slate-400 border-2"
+								disabled
+								rows={2}
+							></textarea>
+						</div>
+					)}
+				</div>
+			)}
 		</div>
 	);
 };

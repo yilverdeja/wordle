@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 export interface GameState {
 	inSession: boolean;
+	answer: string | null;
 	sessionStatus: Status | "stopped";
 	results: GuessResult[];
 	maxGuesses: number;
@@ -26,6 +27,7 @@ const defaultGameState: GameState = {
 	inSession: false,
 	sessionStatus: "stopped",
 	results: [],
+	answer: null,
 	maxGuesses: 0,
 	words: [],
 };
@@ -84,6 +86,7 @@ const useWordleGame = (
 			inSession: true,
 			words: game.words,
 			maxGuesses: game.maxRoundsPerSession,
+			answer: game.currentSession!.answer,
 		});
 	}, [game, gameState]);
 
@@ -93,6 +96,7 @@ const useWordleGame = (
 			...gameState,
 			sessionStatus: "stopped",
 			inSession: false,
+			answer: null,
 		});
 	}, [game, gameState]);
 
