@@ -1,26 +1,21 @@
 "use client";
 import GameControls from "@/components/GameControls";
+import GameSettings from "@/components/GameSettings";
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
-import useWordleGame from "@/hook/useWordleGame";
+import { useGameContext } from "@/context/GameContext";
 import { useState } from "react";
 
 export default function Home() {
-	const { gameState, play, stop, submitGuess } = useWordleGame(
-		["abcde", "qwert", "tyuio"],
-		5
-	);
+	const { gameState, submitGuess } = useGameContext();
 	const [guess, setGuess] = useState("");
 
 	return (
 		<div className="w-full h-screen flex justify-center items-center gap-10">
 			<div className="flex flex-col gap-4">
 				<h1 className="text-3xl">Wordle</h1>
-				<GameControls
-					onStart={play}
-					onStop={stop}
-					inSession={gameState.inSession}
-				/>
+				<GameSettings />
+				<GameControls />
 				{gameState.inSession && (
 					<GuessWordForm
 						guess={guess}

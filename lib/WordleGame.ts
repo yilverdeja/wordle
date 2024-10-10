@@ -1,13 +1,17 @@
 import WordleGameSession from "./WordleGameSession";
 
 class WordleGame {
+	defaultWords: string[];
+	defaultMaxRoundsPerSession: number;
 	words: string[];
 	maxRoundsPerSession: number;
 	sessions: WordleGameSession[] = [];
 	currentSession: WordleGameSession | null = null;
 
 	constructor(words: string[], maxNumRounds: number) {
+		this.defaultWords = words;
 		this.words = words;
+		this.defaultMaxRoundsPerSession = maxNumRounds;
 		this.maxRoundsPerSession = maxNumRounds;
 	}
 
@@ -41,6 +45,14 @@ class WordleGame {
 			return;
 		}
 		return this.currentSession.makeGuess(guess);
+	}
+
+	updateWords(newWords: string[]) {
+		this.words = newWords;
+	}
+
+	updateMaxRounds(newMaxRounds: number) {
+		this.maxRoundsPerSession = newMaxRounds;
 	}
 }
 
