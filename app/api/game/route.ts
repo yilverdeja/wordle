@@ -1,20 +1,10 @@
-import { cookies } from "next/headers";
-import { getIronSession } from "iron-session";
-import { SessionData, sessionConfig } from "./start/route";
+import { getSession } from "./utils";
 
 export async function GET() {
-	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
-
-	if (!session.game) {
-		return new Response(
-			JSON.stringify({
-				error: "The session has not started yet",
-			}),
-			{
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			}
-		);
+	const session = await getSession();
+	let answer = undefined;
+	if (session.game.status === "win" || session.game.status === "lost") {
+		answer = session.game.answer;
 	}
 
 	// returns the settings and status of the session
@@ -24,6 +14,7 @@ export async function GET() {
 			results: session.game.results,
 			maxTries: session.game.maxNumTries,
 			tries: session.game.tries,
+			answer,
 		}),
 		{
 			headers: { "Content-Type": "application/json" },

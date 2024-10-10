@@ -1,33 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { cookies } from "next/headers";
-import { getIronSession, SessionOptions } from "iron-session";
 import words from "@/data/words";
-import { NextRequest } from "next/server";
-import WordleGameServer from "@/lib/wordle/WordleGameServer";
-
-export const sessionConfig: SessionOptions = {
-	password: "ELm5eycNHAZ3bJ4Nru5M47RBAUXNVgjh",
-	cookieName: "wordle-game-session",
-	cookieOptions: {
-		secure: process.env.NODE_ENV === "production",
-		httpOnly: true,
-	},
-};
-
-export interface SessionData {
-	game?: WordleGameServer;
-}
+import { getSession } from "../utils";
 
 const selectRandomWord = (): string =>
 	words[Math.floor(Math.random() * words.length)];
 
-export async function POST(request: NextRequest) {
-	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
-	const maxTries = 6;
+export async function POST() {
+	const session = await getSession();
 
 	// Initialize the game if not already started or if it finished
-	if (!session.game || session.game.status !== "pending") {
-		session.game = new WordleGameServer(maxTries);
+	if (session.game.status !== "pending") {
+		session.game.status = "pending";
 		session.game.answer = selectRandomWord();
 		await session.save();
 

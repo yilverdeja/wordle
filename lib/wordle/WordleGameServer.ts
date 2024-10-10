@@ -1,6 +1,6 @@
 export default class WordleGameServer {
 	maxNumTries: number;
-	status: "pending" | "win" | "lost" = "pending";
+	status: "pending" | "win" | "lost" | "none" = "none";
 	answer: string = "";
 	tries: number = 0;
 	results: { guess: string; result: string }[] = [];

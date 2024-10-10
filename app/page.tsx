@@ -47,6 +47,9 @@ export default function Home() {
 						const results = transformResults(data.results);
 						setGuessResults(results);
 						setRounds(data.tries);
+						if (data.answer) {
+							setAnswer(data.answer);
+						}
 					}
 				})
 				.catch((err) => {
