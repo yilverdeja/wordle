@@ -1,3 +1,5 @@
+import WordleWords from "@/data/words";
+
 const buttonStyle =
 	"bg-slate-200 py-2 px-4 rounded-md disabled:bg-slate-200/50 disabled:text-slate-900/50";
 
@@ -9,14 +11,14 @@ interface Props {
 
 const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
 	const handleInputChange = (newGuess: string) => {
-		if (newGuess.match(/^[A-Za-z]+$/))
+		if (newGuess.match(/^[A-Za-z]+$/) || newGuess === "")
 			onUpdateGuess(
 				newGuess.length <= 5 ? newGuess : newGuess.substring(0, 5)
 			);
 	};
 
 	const handleSubmit = () => {
-		if (guess.length === 5) onSubmitGuess();
+		if (guess.length === 5 && WordleWords.includes(guess)) onSubmitGuess();
 	};
 
 	return (
