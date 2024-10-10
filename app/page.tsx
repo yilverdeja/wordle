@@ -4,7 +4,7 @@ import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
 import { GuessResult, LetterMatch } from "@/lib/wordle/WordleGameSession";
 import axios, { AxiosError } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const buttonStyle =
 	"bg-slate-200 py-2 px-4 rounded-md disabled:bg-slate-200/50 disabled:text-slate-900/50";
@@ -32,6 +32,32 @@ export default function Home() {
 	const [guessResults, setGuessResults] = useState<GuessResult[]>([]);
 	const [answer, setAnswer] = useState<string | null>(null);
 
+	useEffect(() => {
+		// Define the function to fetch data
+		const fetchData = () => {
+			axios
+				.get("/api/game")
+				.then((res) => {
+					const data = res.data;
+					console.log(data);
+					if (data.error) {
+						console.error(data.error);
+					} else {
+						setStatus(data.status);
+						const results = transformResults(data.results);
+						setGuessResults(results);
+						setRounds(data.tries);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		};
+
+		// Call the fetchData function
+		fetchData();
+	}, []);
+
 	const handleSubmitGuess = async () => {
 		setGuessError("");
 		try {
@@ -44,7 +70,7 @@ export default function Home() {
 			if (data.answer) {
 				setAnswer(data.answer);
 			}
-			if (data.status !== "pending") setGuess("");
+			setGuess("");
 		} catch (error) {
 			if (error instanceof AxiosError) {
 				const errorData = error.response?.data;

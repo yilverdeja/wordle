@@ -15,8 +15,11 @@ export const sessionConfig: SessionOptions = {
 };
 
 export interface SessionData {
-	game: WordleGameServer;
+	game?: WordleGameServer;
 }
+
+const selectRandomWord = (): string =>
+	words[Math.floor(Math.random() * words.length)];
 
 export async function POST(request: NextRequest) {
 	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
@@ -25,9 +28,7 @@ export async function POST(request: NextRequest) {
 	// Initialize the game if not already started or if it finished
 	if (!session.game || session.game.status !== "pending") {
 		session.game = new WordleGameServer(maxTries);
-		const randomWordsPosition = Math.floor(Math.random() * words.length);
-		session.game.answer = words[randomWordsPosition];
-		console.log(session.game.answer);
+		session.game.answer = selectRandomWord();
 		await session.save();
 
 		return new Response(

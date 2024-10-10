@@ -1,25 +1,32 @@
 import { cookies } from "next/headers";
-import { getIronSession, SessionOptions } from "iron-session";
-
-const sessionConfig: SessionOptions = {
-	password: "ELm5eycNHAZ3bJ4Nru5M47RBAUXNVgjh",
-	cookieName: "wordle-game-session",
-	cookieOptions: {
-		secure: process.env.NODE_ENV === "production",
-		httpOnly: true,
-	},
-};
-
-interface SessionData {
-	word: string | null;
-	tries: number;
-}
+import { getIronSession } from "iron-session";
+import { SessionData, sessionConfig } from "./start/route";
 
 export async function GET() {
 	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
 
+	if (!session.game) {
+		return new Response(
+			JSON.stringify({
+				error: "The session has not started yet",
+			}),
+			{
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}
+		);
+	}
+
 	// returns the settings and status of the session
-	return new Response(JSON.stringify({ maxTries: 6, tries: session.tries }), {
-		headers: { "Content-Type": "application/json" },
-	});
+	return new Response(
+		JSON.stringify({
+			status: session.game.status,
+			results: session.game.results,
+			maxTries: session.game.maxNumTries,
+			tries: session.game.tries,
+		}),
+		{
+			headers: { "Content-Type": "application/json" },
+		}
+	);
 }
