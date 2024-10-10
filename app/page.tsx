@@ -9,39 +9,68 @@ import { useState } from "react";
 const buttonStyle =
 	"bg-slate-200 py-2 px-4 rounded-md disabled:bg-slate-200/50 disabled:text-slate-900/50";
 
-const sampleGuessResults: GuessResult[] = [
-	{
-		guess: "apple",
-		result: [
-			LetterMatch.Hit,
-			LetterMatch.Miss,
-			LetterMatch.Present,
-			LetterMatch.Hit,
-			LetterMatch.Present,
-		],
-	},
-];
+const transformResults = (
+	results: { guess: string; result: string }[]
+): GuessResult[] => {
+	return results.map(({ guess, result }) => ({
+		guess,
+		result: result.split("").map((letter) => {
+			if (letter === "H") return LetterMatch.Hit;
+			else if (letter === "P") return LetterMatch.Present;
+			else return LetterMatch.Miss;
+		}),
+	}));
+};
 
 export default function Home() {
 	const [guess, setGuess] = useState("");
+	const [guessError, setGuessError] = useState("");
+	const [status, setStatus] = useState<"pending" | "win" | "lost" | null>(
+		null
+	);
+	const [rounds, setRounds] = useState(0);
+	const [guessResults, setGuessResults] = useState<GuessResult[]>([]);
+	const [answer, setAnswer] = useState<string | null>(null);
 
 	const handleSubmitGuess = async () => {
+		setGuessError("");
 		try {
-			const response = await axios.post("/api/game/guess", { guess });
-			console.log(response.data); // Handling the response data
+			const data = await axios
+				.post("/api/game/guess", { guess })
+				.then((res) => res.data);
+			const results = transformResults(data.results);
+			setGuessResults(results);
+			setStatus(data.status);
+			if (data.answer) {
+				setAnswer(data.answer);
+			}
+			if (data.status !== "pending") setGuess("");
 		} catch (error) {
-			if (error instanceof AxiosError)
-				console.error(error.response?.data);
-			else console.error("Error submitting guess:", error);
+			if (error instanceof AxiosError) {
+				const errorData = error.response?.data;
+				console.error(errorData);
+				if (error.status === 403) {
+					setGuessError(errorData.error);
+				}
+			} else console.error("Error submitting guess:", error);
 		}
 	};
 
 	const handleStartGame = async () => {
 		try {
-			const response = await axios.post("/api/game/start");
-			console.log(response.data); // Handling the response data
+			const data = await axios
+				.post("/api/game/start")
+				.then((res) => res.data);
+			setGuessResults([]);
+			setStatus(data.status);
+			setRounds(data.maxTries);
+			setAnswer(null);
 		} catch (error) {
-			console.error("Error starting the game:", error);
+			if (error instanceof AxiosError) {
+				console.error(error.response?.data);
+				setStatus(error.response!.data.status);
+				setRounds(error.response!.data.maxTries);
+			} else console.error("Error starting the game:", error);
 		}
 	};
 
@@ -51,7 +80,7 @@ export default function Home() {
 				<h1 className="text-3xl">Wordle</h1>
 				<div>
 					<div className="flex flex-col items-center gap-4">
-						<LetterGrid guessResults={sampleGuessResults} />
+						<LetterGrid guessResults={guessResults} />
 					</div>
 				</div>
 				<div>
@@ -59,11 +88,30 @@ export default function Home() {
 						guess={guess}
 						onUpdateGuess={setGuess}
 						onSubmitGuess={handleSubmitGuess}
+						disable={status !== "pending"}
 					/>
+					{guessError && (
+						<p className="mt-2 text-xs text-red-400">
+							* {guessError}
+						</p>
+					)}
 				</div>
-				<div>Final Result</div>
+				{answer && (
+					<div className="flex flex-col justify-center items-center">
+						<p>
+							{status === "win"
+								? `Congrats! You Won`
+								: `Bohoo, you lost :< Try again`}
+						</p>
+						<p className="font-bold">Answer: {answer}</p>
+					</div>
+				)}
 				<div>
-					<button className={buttonStyle} onClick={handleStartGame}>
+					<button
+						className={buttonStyle}
+						onClick={handleStartGame}
+						disabled={status === "pending"}
+					>
 						Start
 					</button>
 				</div>

@@ -3,6 +3,7 @@ import { getIronSession } from "iron-session";
 import { NextRequest } from "next/server";
 import { SessionData, sessionConfig } from "../start/route";
 import { LetterMatch } from "@/lib/wordle/WordleGameSession";
+import words from "@/data/words";
 
 const makeGuess = (guess: string, answer: string) => {
 	const result = Array<LetterMatch>(guess.length).fill(LetterMatch.Miss);
@@ -33,10 +34,41 @@ const makeGuess = (guess: string, answer: string) => {
 	return result.join("");
 };
 
+type ValidateGuessResult = {
+	guess?: string;
+	error?: string;
+};
+
+const validateGuess = (guess: unknown): ValidateGuessResult => {
+	if (typeof guess !== "string") return { error: "guess must be a string" };
+
+	if (guess.length !== 5)
+		return { guess, error: "guess must be 5 characters long" };
+
+	const normalizedGuess = guess.toLowerCase();
+	if (!words.includes(normalizedGuess))
+		return { guess, error: "guess must be a valid word" };
+
+	return { guess: normalizedGuess };
+};
+
 export async function POST(request: NextRequest) {
 	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
 	const data = await request.json();
-	const guess = data.guess;
+	const { guess, error } = validateGuess(data.guess);
+
+	if (error) {
+		return new Response(
+			JSON.stringify({
+				status: session.game.status,
+				error: error,
+			}),
+			{
+				status: 403,
+				headers: { "Content-Type": "application/json" },
+			}
+		);
+	}
 
 	if (session.game && session.game.status === "pending" && guess) {
 		session.game.tries += 1;
@@ -44,8 +76,8 @@ export async function POST(request: NextRequest) {
 		// check win state
 		if (session.game.answer === guess) {
 			session.game.status = "win";
-			session.game.results.push("HHHHH");
-			session.save();
+			session.game.results.push({ guess, result: "HHHHH" });
+			await session.save();
 			return new Response(
 				JSON.stringify({
 					status: session.game.status,
@@ -66,7 +98,7 @@ export async function POST(request: NextRequest) {
 
 		// check guess results
 		const result = makeGuess(guess, session.game.answer!);
-		session.game.results.push(result);
+		session.game.results.push({ guess, result });
 
 		// save the updated game state
 		await session.save();

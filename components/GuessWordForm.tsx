@@ -1,5 +1,3 @@
-import WordleWords from "@/data/words";
-
 const buttonStyle =
 	"bg-slate-200 py-2 px-4 rounded-md disabled:bg-slate-200/50 disabled:text-slate-900/50";
 
@@ -7,9 +5,15 @@ interface Props {
 	guess: string;
 	onUpdateGuess: (guess: string) => void;
 	onSubmitGuess: () => void;
+	disable?: boolean;
 }
 
-const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
+const GuessWordForm = ({
+	guess,
+	onUpdateGuess,
+	onSubmitGuess,
+	disable = false,
+}: Props) => {
 	const handleInputChange = (newGuess: string) => {
 		if (newGuess.match(/^[A-Za-z]+$/) || newGuess === "")
 			onUpdateGuess(
@@ -18,7 +22,7 @@ const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
 	};
 
 	const handleSubmit = () => {
-		if (guess.length === 5 && WordleWords.includes(guess)) onSubmitGuess();
+		onSubmitGuess();
 	};
 
 	return (
@@ -35,16 +39,15 @@ const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
 					name="guess"
 					id="guess"
 					placeholder="Make a guess..."
+					disabled={disable}
 				/>
-				<button className={buttonStyle} onClick={handleSubmit}>
+				<button
+					className={buttonStyle}
+					onClick={handleSubmit}
+					disabled={disable}
+				>
 					Guess
 				</button>
-			</div>
-			<div className="flex flex-col gap-1">
-				<p className="text-xs text-slate-600">
-					* must be 5 letters long
-				</p>
-				<p className="text-xs text-slate-600">* must be a valid word</p>
 			</div>
 		</div>
 	);

@@ -4,6 +4,7 @@ import GameSettings from "@/components/basic/GameSettings";
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
 import { useGameContext } from "@/context/GameContext";
+import WordleWords from "@/data/words";
 import { useState } from "react";
 
 export default function BasicGame() {
@@ -21,14 +22,29 @@ export default function BasicGame() {
 					<div className="flex flex-col gap-4">
 						<GameControls />
 						{gameState.inSession && (
-							<GuessWordForm
-								guess={guess}
-								onUpdateGuess={setGuess}
-								onSubmitGuess={() => {
-									submitGuess(guess.toLowerCase());
-									setGuess("");
-								}}
-							/>
+							<>
+								<GuessWordForm
+									guess={guess}
+									onUpdateGuess={setGuess}
+									onSubmitGuess={() => {
+										if (
+											guess.length === 5 &&
+											WordleWords.includes(guess)
+										) {
+											submitGuess(guess.toLowerCase());
+											setGuess("");
+										}
+									}}
+								/>
+								<div className="flex flex-col gap-1">
+									<p className="text-xs text-slate-600">
+										* must be 5 letters long
+									</p>
+									<p className="text-xs text-slate-600">
+										* must be a valid word
+									</p>
+								</div>
+							</>
 						)}
 					</div>
 					<div>

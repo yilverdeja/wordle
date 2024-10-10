@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
 		session.game = new WordleGameServer(maxTries);
 		const randomWordsPosition = Math.floor(Math.random() * words.length);
 		session.game.answer = words[randomWordsPosition];
+		console.log(session.game.answer);
 		await session.save();
 
 		return new Response(
