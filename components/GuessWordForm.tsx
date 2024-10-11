@@ -5,18 +5,24 @@ interface Props {
 	guess: string;
 	onUpdateGuess: (guess: string) => void;
 	onSubmitGuess: () => void;
+	disable?: boolean;
 }
 
-const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
+const GuessWordForm = ({
+	guess,
+	onUpdateGuess,
+	onSubmitGuess,
+	disable = false,
+}: Props) => {
 	const handleInputChange = (newGuess: string) => {
-		if (newGuess.match(/^[A-Za-z]+$/))
+		if (newGuess.match(/^[A-Za-z]+$/) || newGuess === "")
 			onUpdateGuess(
 				newGuess.length <= 5 ? newGuess : newGuess.substring(0, 5)
 			);
 	};
 
 	const handleSubmit = () => {
-		if (guess.length === 5) onSubmitGuess();
+		onSubmitGuess();
 	};
 
 	return (
@@ -33,16 +39,15 @@ const GuessWordForm = ({ guess, onUpdateGuess, onSubmitGuess }: Props) => {
 					name="guess"
 					id="guess"
 					placeholder="Make a guess..."
+					disabled={disable}
 				/>
-				<button className={buttonStyle} onClick={handleSubmit}>
+				<button
+					className={buttonStyle}
+					onClick={handleSubmit}
+					disabled={disable}
+				>
 					Guess
 				</button>
-			</div>
-			<div className="flex flex-col gap-1">
-				<p className="text-xs text-slate-600">
-					* must be 5 letters long
-				</p>
-				<p className="text-xs text-slate-600">* must be a valid word</p>
 			</div>
 		</div>
 	);
