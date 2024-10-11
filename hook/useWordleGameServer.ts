@@ -45,6 +45,7 @@ const useWordleGameServer = () => {
 				"/api/game"
 			);
 			const data = response.data;
+			console.log(data);
 			setStatus(data.status);
 			setGuessResults(transformResults(data.results!));
 			setRounds(data.tries!);
@@ -64,6 +65,7 @@ const useWordleGameServer = () => {
 				{ guess }
 			);
 			const data = response.data;
+			console.log(data);
 			setGuessResults(transformResults(data.results!));
 			setRounds(data.tries!);
 			setStatus(data.status);
@@ -81,6 +83,7 @@ const useWordleGameServer = () => {
 				"/api/game/start"
 			);
 			const data = response.data;
+			console.log(data);
 			setGuessResults([]);
 			setStatus(data.status);
 			setRounds(0);

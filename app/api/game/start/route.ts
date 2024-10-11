@@ -10,6 +10,8 @@ export async function POST() {
 	// Initialize the game if not already started or if it finished
 	if (session.game.status !== "pending") {
 		session.game.status = "pending";
+		session.game.tries = 0;
+		session.game.results = [];
 		session.game.answer = selectRandomWord();
 		await session.save();
 
