@@ -1,8 +1,14 @@
 import words from "@/data/words";
 import { getSession } from "../utils";
 
-const selectRandomWord = (): string =>
-	words[Math.floor(Math.random() * words.length)];
+const selectRandomWord = (): string => {
+	if (process.env.WORDS !== undefined) {
+		const customWords = process.env.WORDS.split(", ");
+		return customWords[Math.floor(Math.random() * customWords.length)];
+	} else {
+		return words[Math.floor(Math.random() * words.length)];
+	}
+};
 
 export async function POST() {
 	const session = await getSession();
@@ -13,6 +19,7 @@ export async function POST() {
 		session.game.tries = 0;
 		session.game.results = [];
 		session.game.answer = selectRandomWord();
+		console.log(session.game.answer);
 		await session.save();
 
 		return new Response(
