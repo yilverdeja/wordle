@@ -72,6 +72,8 @@ Main dependencies are:
 
 This version is only on the client side, and allows the user to update the game configuration like the maximum number of rounds, and a list of 5-letter words.
 
+![image](https://github.com/user-attachments/assets/1ea725bb-4dd8-4fbd-8dba-f35f425e5bd6)
+
 #### Features
 
 -   Users can directly update the game settings and the available words to use
@@ -85,6 +87,8 @@ This version is only on the client side, and allows the user to update the game 
 ### Server / Client
 
 This feature was implemented using the NextJS API routes, and with cookies to manage sessions between different clients.
+
+![image](https://github.com/user-attachments/assets/32c1a640-4a65-4a15-a45b-5f48fcd57638)
 
 #### Features
 
