@@ -17,14 +17,16 @@ export async function POST(request: NextRequest) {
 
 	// Initialize the game if not already started or if it finished
 	if (session.game.status !== "pending") {
-		if (data.gameType) {
-			if (data.gameType === "absurdle") session.game.type = "absurdle";
-			else session.game.type = "normal";
-		}
+		// set game type
+		if (data.gameType && data.gameType === "absurdle")
+			session.game.type = "absurdle";
+		else session.game.type = "normal";
+
 		session.game.status = "pending";
 		session.game.tries = 0;
 		session.game.results = [];
-		session.game.answer = selectRandomWord();
+		session.game.answer =
+			session.game.type === "normal" ? selectRandomWord() : "";
 		console.log(session.game.answer);
 		await session.save();
 

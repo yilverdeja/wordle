@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
 	}
 
 	if (session.game && session.game.status === "pending" && guess) {
+		// play normal game vs absurdle
 		session.game.tries += 1;
 
 		// check win state
