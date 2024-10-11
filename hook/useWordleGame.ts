@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { GuessResult } from "@/lib/wordle/types";
 import WordleGame from "@/lib/wordle/WordleGame";
-import { GuessResult, Status } from "@/lib/wordle/WordleGameSession";
+import { Status } from "@/lib/wordle/WordleGameSession";
 import { useCallback, useState } from "react";
 
 export interface GameState {

@@ -1,9 +1,12 @@
+export type WordleGameServerStatus = "pending" | "win" | "lost" | "none";
+export type WordleGameServerResult = { guess: string; result: string };
+
 export default class WordleGameServer {
 	maxNumTries: number;
-	status: "pending" | "win" | "lost" | "none" = "none";
+	status: WordleGameServerStatus = "none";
 	answer: string = "";
 	tries: number = 0;
-	results: { guess: string; result: string }[] = [];
+	results: WordleGameServerResult[] = [];
 
 	constructor(maxNumTries: number) {
 		this.maxNumTries = maxNumTries;

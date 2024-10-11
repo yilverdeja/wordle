@@ -1,13 +1,4 @@
-export enum LetterMatch {
-	Hit = "H",
-	Present = "P",
-	Miss = "M",
-}
-
-export type GuessResult = {
-	guess: string;
-	result: LetterMatch[];
-};
+import { GuessResult, LetterMatch } from "./types";
 
 export type Status = "pending" | "win" | "lost";
 

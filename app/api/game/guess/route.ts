@@ -1,9 +1,7 @@
 import words from "@/data/words";
-import { LetterMatch } from "@/lib/wordle/WordleGameSession";
-import { SessionData, sessionConfig } from "@/app/api/game/types";
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+import { getSession } from "../utils";
+import { LetterMatch } from "@/lib/wordle/types";
 
 const makeGuess = (guess: string, answer: string) => {
 	const result = Array<LetterMatch>(guess.length).fill(LetterMatch.Miss);
@@ -53,11 +51,12 @@ const validateGuess = (guess: unknown): ValidateGuessResult => {
 };
 
 export async function POST(request: NextRequest) {
-	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
+	const session = await getSession();
 
-	if (!session.game || session.game.status !== "pending") {
+	if (session.game.status !== "pending") {
 		return new Response(
 			JSON.stringify({
+				status: session.game.status,
 				error: "The game has not started yet",
 			}),
 			{
@@ -94,6 +93,7 @@ export async function POST(request: NextRequest) {
 			return new Response(
 				JSON.stringify({
 					status: session.game.status,
+					tries: session.game.tries,
 					results: session.game.results,
 					guess,
 					answer: session.game.answer,
@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
 		return new Response(
 			JSON.stringify({
 				status: session.game.status,
+				tries: session.game.tries,
 				results: session.game.results,
 				guess,
 				answer:

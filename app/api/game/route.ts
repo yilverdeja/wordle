@@ -2,12 +2,14 @@ import { getSession } from "./utils";
 
 export async function GET() {
 	const session = await getSession();
+
+	// get answer if the game exists and it's over
 	let answer = undefined;
 	if (session.game.status === "win" || session.game.status === "lost") {
 		answer = session.game.answer;
 	}
 
-	// returns the settings and status of the session
+	// returns the current status of the game session
 	return new Response(
 		JSON.stringify({
 			status: session.game.status,

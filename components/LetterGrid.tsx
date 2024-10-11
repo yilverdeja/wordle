@@ -1,4 +1,4 @@
-import { GuessResult } from "@/lib/wordle/WordleGameSession";
+import { GuessResult } from "@/lib/wordle/types";
 import LetterBox from "./LetterBox";
 
 interface Props {
