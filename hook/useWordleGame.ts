@@ -1,10 +1,15 @@
 import { GuessResult, LetterMatch } from "@/lib/wordle/types";
-import { WordleGameResult, WordleGameStatus } from "@/lib/wordle/WordleGame";
-import axios from "axios";
+import {
+	WordleGameResult,
+	WordleGameStatus,
+	WordleGameType,
+} from "@/lib/wordle/WordleGame";
+import axios, { AxiosError } from "axios";
 import { useState, useCallback } from "react";
 
 interface WordleGameResponse {
 	status: WordleGameStatus;
+	type?: WordleGameType;
 	results?: WordleGameResult[];
 	guess?: string;
 	answer?: string;
@@ -27,6 +32,7 @@ const transformResults = (
 
 const useWordleGame = () => {
 	const [status, setStatus] = useState<WordleGameStatus | null>(null);
+	const [gameType, setGameType] = useState<WordleGameType | null>(null);
 	const [guessResults, setGuessResults] = useState<GuessResult[]>([]);
 	const [rounds, setRounds] = useState(0);
 	const [maxRounds, setMaxRounds] = useState(0);
@@ -41,6 +47,7 @@ const useWordleGame = () => {
 			const response = await axios.get<WordleGameResponse>("/api/game");
 			const data = response.data;
 			setStatus(data.status);
+			setGameType(data.type!);
 			setGuessResults(transformResults(data.results!));
 			setRounds(data.tries!);
 			setMaxRounds(data.maxTries!);
@@ -65,16 +72,22 @@ const useWordleGame = () => {
 			setAnswer(data.answer!);
 		} catch (error) {
 			console.error("Error submitting guess:", error);
-			setError({ type: "fetch", message: "Failed to submit guess" });
+			setError({
+				type: "guess",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to submit guess",
+			});
 		}
 	}, []);
 
-	const startGame = useCallback(async () => {
+	const startGame = useCallback(async (gameType: WordleGameType) => {
 		setError(null);
 		try {
 			const response = await axios.post<WordleGameResponse>(
 				"/api/game/start",
-				{ gameType: "absurdle" }
+				{ gameType }
 			);
 			const data = response.data;
 			setGuessResults([]);
@@ -84,12 +97,13 @@ const useWordleGame = () => {
 			setAnswer(null);
 		} catch (error) {
 			console.error("Error starting the game:", error);
-			setError({ type: "fetch", message: "Failed to start the game" });
+			setError({ type: "start", message: "Failed to start the game" });
 		}
 	}, []);
 
 	return {
 		status,
+		gameType,
 		guessResults,
 		rounds,
 		maxRounds,
