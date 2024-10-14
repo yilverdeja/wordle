@@ -128,13 +128,21 @@ export async function POST(request: NextRequest) {
 							decodeCandidates(session.game.candidates)
 					  );
 
-			console.log(foundCandidates);
-
-			if (foundCandidates.points === 0) {
+			if (
+				foundCandidates.points === 0 &&
+				foundCandidates.candidates.length > 1
+			) {
+				// save candidates & save "attempted" failed guess
 				session.game.candidates = encodeCadidates(
 					foundCandidates.candidates
 				);
 				session.game.results.push({ guess, result: "MMMMM" });
+
+				// check lost state
+				if (session.game.maxNumTries === session.game.tries) {
+					session.game.status = "lost";
+				}
+
 				await session.save();
 
 				return new Response(
