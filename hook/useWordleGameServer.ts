@@ -78,7 +78,8 @@ const useWordleGameServer = () => {
 		setError(null);
 		try {
 			const response = await axios.post<WordleGameServerResponse>(
-				"/api/game/start"
+				"/api/game/start",
+				{ gameType: "normal" }
 			);
 			const data = response.data;
 			setGuessResults([]);

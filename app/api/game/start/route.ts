@@ -1,6 +1,5 @@
 import words from "@/data/words";
 import { getSession } from "../utils";
-import { NextRequest } from "next/server";
 
 const selectRandomWord = (): string => {
 	if (process.env.WORDS !== undefined) {
@@ -11,7 +10,7 @@ const selectRandomWord = (): string => {
 	}
 };
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
 	const session = await getSession();
 	const data = await request.json();
 
