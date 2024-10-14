@@ -13,6 +13,7 @@ export async function GET() {
 	return new Response(
 		JSON.stringify({
 			status: session.game.status,
+			type: session.game.type,
 			results: session.game.results,
 			maxTries: session.game.maxNumTries,
 			tries: session.game.tries,

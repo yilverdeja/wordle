@@ -1,59 +1,17 @@
-import WordleGameSession from "./WordleGameSession";
+export type WordleGameStatus = "pending" | "win" | "lost" | "none";
+export type WordleGameResult = { guess: string; result: string };
+export type WordleGameType = "normal" | "absurdle";
 
-class WordleGame {
-	defaultWords: string[];
-	defaultMaxRoundsPerSession: number;
-	words: string[];
-	maxRoundsPerSession: number;
-	sessions: WordleGameSession[] = [];
-	currentSession: WordleGameSession | null = null;
+export default class WordleGame {
+	maxNumTries: number;
+	status: WordleGameStatus = "none";
+	type: WordleGameType = "normal";
+	candidates: string = "";
+	answer: string = "";
+	tries: number = 0;
+	results: WordleGameResult[] = [];
 
-	constructor(words: string[], maxNumRounds: number) {
-		this.defaultWords = words;
-		this.words = words;
-		this.defaultMaxRoundsPerSession = maxNumRounds;
-		this.maxRoundsPerSession = maxNumRounds;
-	}
-
-	play() {
-		if (this.currentSession) {
-			console.error("A session is already in progress.");
-			return;
-		}
-		const randomWordsPosition = Math.floor(
-			Math.random() * this.words.length
-		);
-		const answer = this.words[randomWordsPosition];
-		this.currentSession = new WordleGameSession(
-			answer,
-			this.maxRoundsPerSession
-		);
-	}
-
-	stop() {
-		if (!this.currentSession) {
-			console.error("No active session to stop.");
-			return;
-		}
-		this.sessions.push(this.currentSession);
-		this.currentSession = null;
-	}
-
-	submitGuess(guess: string) {
-		if (!this.currentSession) {
-			console.error("No active session. Please start a new game.");
-			return;
-		}
-		return this.currentSession.makeGuess(guess);
-	}
-
-	updateWords(newWords: string[]) {
-		this.words = newWords;
-	}
-
-	updateMaxRounds(newMaxRounds: number) {
-		this.maxRoundsPerSession = newMaxRounds;
+	constructor(maxNumTries: number) {
+		this.maxNumTries = maxNumTries;
 	}
 }
-
-export default WordleGame;

@@ -1,138 +1,129 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { GuessResult } from "@/lib/wordle/types";
-import WordleGame from "@/lib/wordle/WordleGame";
-import { Status } from "@/lib/wordle/WordleGameSession";
-import { useCallback, useState } from "react";
+import { GuessResult, LetterMatch } from "@/lib/wordle/types";
+import {
+	WordleGameResult,
+	WordleGameStatus,
+	WordleGameType,
+} from "@/lib/wordle/WordleGame";
+import axios, { AxiosError } from "axios";
+import { useState, useCallback } from "react";
 
-export interface GameState {
-	inSession: boolean;
-	answer: string | null;
-	sessionStatus: Status | "stopped";
-	results: GuessResult[];
-	maxGuesses: number;
-	words: string[];
+interface WordleGameResponse {
+	status: WordleGameStatus;
+	type?: WordleGameType;
+	results?: WordleGameResult[];
+	guess?: string;
+	answer?: string;
+	maxTries?: number;
+	tries?: number;
+	error?: string;
 }
 
-export interface UseWordleGame {
-	game: WordleGame; // Assume WordleGame is a class from "@/lib/WordleGame"
-	gameState: GameState;
-	play: () => void;
-	stop: () => void;
-	submitGuess: (guess: string) => void;
-	updateMaxGuesses: (newMaxTries: number) => void;
-	updateWords: (newWords: string[]) => void;
-	resetSettings: () => void;
-}
+const transformResults = (
+	results: { guess: string; result: string }[]
+): GuessResult[] =>
+	results.map(({ guess, result }) => ({
+		guess,
+		result: result.split("").map((letter) => {
+			if (letter === "H") return LetterMatch.Hit;
+			else if (letter === "P") return LetterMatch.Present;
+			else return LetterMatch.Miss;
+		}),
+	}));
 
-const defaultGameState: GameState = {
-	inSession: false,
-	sessionStatus: "stopped",
-	results: [],
-	answer: null,
-	maxGuesses: 0,
-	words: [],
-};
+const useWordleGame = () => {
+	const [status, setStatus] = useState<WordleGameStatus | null>(null);
+	const [gameType, setGameType] = useState<WordleGameType | null>(null);
+	const [guessResults, setGuessResults] = useState<GuessResult[]>([]);
+	const [rounds, setRounds] = useState(0);
+	const [maxRounds, setMaxRounds] = useState(0);
+	const [answer, setAnswer] = useState<string | null>(null);
+	const [error, setError] = useState<{
+		type: "start" | "guess" | "fetch";
+		message: string;
+	} | null>(null);
 
-const useWordleGame = (
-	initialWords: string[],
-	initialMaxTries: number
-): UseWordleGame => {
-	const [game] = useState(
-		() => new WordleGame(initialWords, initialMaxTries)
-	);
+	const fetchData = useCallback(async () => {
+		try {
+			const response = await axios.get<WordleGameResponse>("/api/game");
+			const data = response.data;
+			setStatus(data.status);
+			setGameType(data.type!);
+			setGuessResults(transformResults(data.results!));
+			setRounds(data.tries!);
+			setMaxRounds(data.maxTries!);
+			setAnswer(data.answer!);
+		} catch (error) {
+			console.error("Fetch data failed:", error);
+			setError({
+				type: "fetch",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to fetch game data",
+			});
+		}
+	}, []);
 
-	const [gameState, setGameState] = useState<GameState>({
-		...defaultGameState,
-		words: initialWords,
-		maxGuesses: initialMaxTries,
-	});
+	const submitGuess = useCallback(async (guess: string) => {
+		setError(null);
+		try {
+			const response = await axios.post<WordleGameResponse>(
+				"/api/game/guess",
+				{ guess }
+			);
+			const data = response.data;
+			setGuessResults(transformResults(data.results!));
+			setRounds(data.tries!);
+			setStatus(data.status);
+			setAnswer(data.answer!);
+		} catch (error) {
+			console.error("Error submitting guess:", error);
+			setError({
+				type: "guess",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to submit guess",
+			});
+		}
+	}, []);
 
-	const resetSettings = useCallback(() => {
-		game.updateWords(game.defaultWords);
-		game.updateMaxRounds(game.defaultMaxRoundsPerSession);
-		setGameState({
-			...gameState,
-			words: game.words,
-			maxGuesses: game.maxRoundsPerSession,
-		});
-	}, [game]);
-
-	const updateWords = useCallback(
-		(newWords: string[]) => {
-			game.updateWords(newWords);
-			setGameState((prevState) => ({
-				...prevState,
-				words: game.words,
-			}));
-		},
-		[game]
-	);
-
-	const updateMaxGuesses = useCallback(
-		(newMaxTries: number) => {
-			game.updateMaxRounds(newMaxTries);
-			setGameState((prevState) => ({
-				...prevState,
-				maxGuesses: game.maxRoundsPerSession,
-			}));
-		},
-		[game]
-	);
-
-	const play = useCallback(() => {
-		game.play();
-		setGameState({
-			results: [],
-			sessionStatus: "pending",
-			inSession: true,
-			words: game.words,
-			maxGuesses: game.maxRoundsPerSession,
-			answer: game.currentSession!.answer,
-		});
-	}, [game, gameState]);
-
-	const stop = useCallback(() => {
-		game.stop();
-		setGameState({
-			...gameState,
-			sessionStatus: "stopped",
-			inSession: false,
-			answer: null,
-		});
-	}, [game, gameState]);
-
-	const submitGuess = useCallback(
-		(guess: string) => {
-			const result = game.submitGuess(guess);
-
-			if (!result) return;
-
-			if (result.status !== "pending") {
-				game.stop();
-				setGameState({
-					...gameState,
-					sessionStatus: result.status,
-					inSession: false,
-				});
-			}
-
-			setGameState((prev) => ({
-				...prev,
-				results: [...prev.results, result],
-			}));
-		},
-		[game, gameState]
-	);
+	const startGame = useCallback(async (gameType: WordleGameType) => {
+		setError(null);
+		try {
+			const response = await axios.post<WordleGameResponse>(
+				"/api/game/start",
+				{ gameType }
+			);
+			const data = response.data;
+			setGuessResults([]);
+			setStatus(data.status);
+			setRounds(0);
+			setMaxRounds(data.maxTries!);
+			setAnswer(null);
+		} catch (error) {
+			console.error("Error starting the game:", error);
+			setError({
+				type: "start",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to start game",
+			});
+		}
+	}, []);
 
 	return {
-		game,
-		gameState,
-		play,
-		stop,
+		status,
+		gameType,
+		guessResults,
+		rounds,
+		maxRounds,
+		answer,
+		error,
+		fetchData,
 		submitGuess,
-		updateMaxGuesses,
-		updateWords,
-		resetSettings,
+		startGame,
 	};
 };
 

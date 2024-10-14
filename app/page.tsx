@@ -2,7 +2,7 @@
 "use client";
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
-import useWordleGameServer from "@/hook/useWordleGameServer";
+import useWordleGame from "@/hook/useWordleGame";
 import { useEffect, useState } from "react";
 
 const buttonStyle =
@@ -19,7 +19,7 @@ export default function Home() {
 		fetchData,
 		submitGuess,
 		startGame,
-	} = useWordleGameServer();
+	} = useWordleGame();
 	const [guess, setGuess] = useState("");
 
 	// fetch data at the start of the session
@@ -31,13 +31,20 @@ export default function Home() {
 		<div className="w-full h-screen flex p-10">
 			<div className="w-full flex flex-col items-center gap-4">
 				<h1 className="text-3xl">Wordle</h1>
-				<div>
+				<div className="flex flex-row gap-4">
 					<button
 						className={buttonStyle}
-						onClick={startGame}
+						onClick={() => startGame("normal")}
 						disabled={status === "pending"}
 					>
-						Start
+						Play Normal
+					</button>
+					<button
+						className={buttonStyle}
+						onClick={() => startGame("absurdle")}
+						disabled={status === "pending"}
+					>
+						Play Absurdle
 					</button>
 				</div>
 				<div>
