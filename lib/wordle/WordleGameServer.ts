@@ -6,6 +6,7 @@ export default class WordleGameServer {
 	maxNumTries: number;
 	status: WordleGameServerStatus = "none";
 	type: WordleGameServerType = "normal";
+	candidates: string = "";
 	answer: string = "";
 	tries: number = 0;
 	results: WordleGameServerResult[] = [];

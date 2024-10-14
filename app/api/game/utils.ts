@@ -7,7 +7,7 @@ export const getSession = async () => {
 	const session = await getIronSession<SessionData>(cookies(), sessionConfig);
 
 	if (!session.game) {
-		session.game = new WordleGameServer(5);
+		session.game = new WordleGameServer(10);
 		await session.save();
 	}
 
