@@ -1,5 +1,5 @@
 import words from "@/data/words";
-import { getSession } from "../utils";
+import { encodeCadidates, getCandidates, getSession } from "../utils";
 
 const selectRandomWord = (): string => {
 	if (process.env.WORDS !== undefined) {
@@ -17,16 +17,20 @@ export async function POST(request: Request) {
 	// Initialize the game if not already started or if it finished
 	if (session.game.status !== "pending") {
 		// set game type
-		if (data.gameType && data.gameType === "absurdle")
+		if (data.gameType && data.gameType === "absurdle") {
 			session.game.type = "absurdle";
-		else session.game.type = "normal";
+			session.game.candidates = encodeCadidates(getCandidates());
+			session.game.answer = "";
+		} else {
+			session.game.type = "normal";
+			session.game.candidates = "";
+			session.game.answer = selectRandomWord();
+			console.log(session.game.answer);
+		}
 
 		session.game.status = "pending";
 		session.game.tries = 0;
 		session.game.results = [];
-		session.game.answer =
-			session.game.type === "normal" ? selectRandomWord() : "";
-		console.log(session.game.answer);
 		await session.save();
 
 		return new Response(

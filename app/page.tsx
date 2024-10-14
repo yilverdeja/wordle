@@ -2,7 +2,7 @@
 "use client";
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
-import useWordleGameServer from "@/hook/useWordleGameServer";
+import useWordleGame from "@/hook/useWordleGame";
 import { useEffect, useState } from "react";
 
 const buttonStyle =
@@ -19,7 +19,7 @@ export default function Home() {
 		fetchData,
 		submitGuess,
 		startGame,
-	} = useWordleGameServer();
+	} = useWordleGame();
 	const [guess, setGuess] = useState("");
 
 	// fetch data at the start of the session

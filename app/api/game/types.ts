@@ -1,4 +1,4 @@
-import WordleGameServer from "@/lib/wordle/WordleGameServer";
+import WordleGame from "@/lib/wordle/WordleGame";
 import { SessionOptions } from "iron-session";
 
 export const sessionConfig: SessionOptions = {
@@ -11,5 +11,5 @@ export const sessionConfig: SessionOptions = {
 };
 
 export interface SessionData {
-	game: WordleGameServer;
+	game: WordleGame;
 }

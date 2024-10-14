@@ -1,14 +1,11 @@
 import { GuessResult, LetterMatch } from "@/lib/wordle/types";
-import {
-	WordleGameServerResult,
-	WordleGameServerStatus,
-} from "@/lib/wordle/WordleGameServer";
+import { WordleGameResult, WordleGameStatus } from "@/lib/wordle/WordleGame";
 import axios from "axios";
 import { useState, useCallback } from "react";
 
-interface WordleGameServerResponse {
-	status: WordleGameServerStatus;
-	results?: WordleGameServerResult[];
+interface WordleGameResponse {
+	status: WordleGameStatus;
+	results?: WordleGameResult[];
 	guess?: string;
 	answer?: string;
 	maxTries?: number;
@@ -28,8 +25,8 @@ const transformResults = (
 		}),
 	}));
 
-const useWordleGameServer = () => {
-	const [status, setStatus] = useState<WordleGameServerStatus | null>(null);
+const useWordleGame = () => {
+	const [status, setStatus] = useState<WordleGameStatus | null>(null);
 	const [guessResults, setGuessResults] = useState<GuessResult[]>([]);
 	const [rounds, setRounds] = useState(0);
 	const [maxRounds, setMaxRounds] = useState(0);
@@ -41,9 +38,7 @@ const useWordleGameServer = () => {
 
 	const fetchData = useCallback(async () => {
 		try {
-			const response = await axios.get<WordleGameServerResponse>(
-				"/api/game"
-			);
+			const response = await axios.get<WordleGameResponse>("/api/game");
 			const data = response.data;
 			setStatus(data.status);
 			setGuessResults(transformResults(data.results!));
@@ -59,7 +54,7 @@ const useWordleGameServer = () => {
 	const submitGuess = useCallback(async (guess: string) => {
 		setError(null);
 		try {
-			const response = await axios.post<WordleGameServerResponse>(
+			const response = await axios.post<WordleGameResponse>(
 				"/api/game/guess",
 				{ guess }
 			);
@@ -77,7 +72,7 @@ const useWordleGameServer = () => {
 	const startGame = useCallback(async () => {
 		setError(null);
 		try {
-			const response = await axios.post<WordleGameServerResponse>(
+			const response = await axios.post<WordleGameResponse>(
 				"/api/game/start",
 				{ gameType: "absurdle" }
 			);
@@ -106,4 +101,4 @@ const useWordleGameServer = () => {
 	};
 };
 
-export default useWordleGameServer;
+export default useWordleGame;

@@ -1,36 +1,12 @@
 import words from "@/data/words";
 import { NextRequest } from "next/server";
-import { getSession } from "../utils";
+import {
+	decodeCandidates,
+	encodeCadidates,
+	getCandidates,
+	getSession,
+} from "../utils";
 import { LetterMatch } from "@/lib/wordle/types";
-
-const getWords = (): string[] => {
-	if (process.env.WORDS !== undefined) {
-		return process.env.WORDS.split(", ");
-	} else {
-		return words;
-	}
-};
-
-function getRandomWordsSubset(numWords: number) {
-	const words = getWords();
-	const selectedIndices = new Set();
-	const subset = [];
-
-	while (subset.length < numWords) {
-		const index = Math.floor(Math.random() * words.length);
-		if (!selectedIndices.has(index)) {
-			subset.push(words[index]);
-			selectedIndices.add(index);
-		}
-	}
-
-	return subset;
-}
-
-const getCandidates = (): { word: string; position: number }[] => {
-	const words = getRandomWordsSubset(1000);
-	return words.map((word, index) => ({ word: word, position: index }));
-};
 
 const findCandidates = (
 	guess: string,
@@ -57,20 +33,6 @@ const findCandidates = (
 	});
 
 	return { candidates: selectedCandidates, points: minPoints };
-};
-
-const encodeCadidates = (candidates: { word: string; position: number }[]) => {
-	return candidates
-		.reduce((acc, curr) => (acc += curr.position + ","), "")
-		.slice(0, -1);
-};
-
-const decodeCandidates = (encodedCandidates: string) => {
-	const words = getWords();
-	return encodedCandidates.split(",").map((position) => ({
-		word: words[parseInt(position)],
-		position: parseInt(position),
-	}));
 };
 
 const makeGuess = (guess: string, answer: string) => {
