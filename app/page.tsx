@@ -31,13 +31,20 @@ export default function Home() {
 		<div className="w-full h-screen flex p-10">
 			<div className="w-full flex flex-col items-center gap-4">
 				<h1 className="text-3xl">Wordle</h1>
-				<div>
+				<div className="flex flex-row gap-4">
 					<button
 						className={buttonStyle}
-						onClick={startGame}
+						onClick={() => startGame("normal")}
 						disabled={status === "pending"}
 					>
-						Start
+						Play Normal
+					</button>
+					<button
+						className={buttonStyle}
+						onClick={() => startGame("absurdle")}
+						disabled={status === "pending"}
+					>
+						Play Absurdle
 					</button>
 				</div>
 				<div>

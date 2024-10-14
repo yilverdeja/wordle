@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
 				return new Response(
 					JSON.stringify({
 						status: session.game.status,
+						type: session.game.type,
 						tries: session.game.tries,
 						results: session.game.results,
 						guess,
@@ -182,6 +183,7 @@ export async function POST(request: NextRequest) {
 			return new Response(
 				JSON.stringify({
 					status: session.game.status,
+					type: session.game.type,
 					tries: session.game.tries,
 					results: session.game.results,
 					guess,
@@ -209,6 +211,7 @@ export async function POST(request: NextRequest) {
 		return new Response(
 			JSON.stringify({
 				status: session.game.status,
+				type: session.game.type,
 				tries: session.game.tries,
 				results: session.game.results,
 				guess,

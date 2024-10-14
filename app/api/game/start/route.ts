@@ -49,6 +49,7 @@ export async function POST(request: Request) {
 	return new Response(
 		JSON.stringify({
 			status: session.game.status,
+			type: session.game.type,
 			maxTries: session.game.maxNumTries,
 			tries: session.game.tries,
 			error: "A game is already active",

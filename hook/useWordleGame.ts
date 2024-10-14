@@ -54,7 +54,13 @@ const useWordleGame = () => {
 			setAnswer(data.answer!);
 		} catch (error) {
 			console.error("Fetch data failed:", error);
-			setError({ type: "fetch", message: "Failed to fetch game data" });
+			setError({
+				type: "fetch",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to fetch game data",
+			});
 		}
 	}, []);
 
@@ -97,7 +103,13 @@ const useWordleGame = () => {
 			setAnswer(null);
 		} catch (error) {
 			console.error("Error starting the game:", error);
-			setError({ type: "start", message: "Failed to start the game" });
+			setError({
+				type: "start",
+				message:
+					error instanceof AxiosError
+						? error.response?.data.error
+						: "Failed to start game",
+			});
 		}
 	}, []);
 
