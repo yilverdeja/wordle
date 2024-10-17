@@ -40,7 +40,8 @@ export const getRandomWordsSubset = (numWords: number) => {
 };
 
 export const getCandidates = (): { word: string; position: number }[] => {
-	const words = getRandomWordsSubset(1000);
+	const MAX_CANDIDATES = 500;
+	const words = getRandomWordsSubset(MAX_CANDIDATES);
 	return words.map((word, index) => ({ word: word, position: index }));
 };
 
