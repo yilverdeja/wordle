@@ -1,5 +1,10 @@
 import { getIronSession } from "iron-session";
-import { SessionData, sessionConfig } from "./types";
+import {
+	Candidate,
+	SessionData,
+	ValidateGuessResult,
+	sessionConfig,
+} from "./types";
 import { cookies } from "next/headers";
 import WordleGame from "@/lib/wordle/WordleGame";
 import words from "@/data/words";
@@ -17,7 +22,7 @@ export const getSession = async () => {
 };
 
 export const getWords = (): string[] => {
-	if (process.env.WORDS !== undefined) {
+	if (process.env.WORDS !== undefined && process.env.WORDS !== "") {
 		return process.env.WORDS.split(", ");
 	} else {
 		return words;
@@ -40,42 +45,46 @@ export const getRandomWordsSubset = (numWords: number) => {
 	return subset;
 };
 
-export const getCandidates = (): { word: string; position: number }[] => {
+export const getCandidates = (): Candidate[] => {
 	const MAX_CANDIDATES = 500;
 	const words = getRandomWordsSubset(MAX_CANDIDATES);
 	return words.map((word, index) => ({ word: word, position: index }));
 };
 
-export const encodeCadidates = (
-	candidates: { word: string; position: number }[]
-) => {
+export const encodeCadidates = (candidates: Candidate[]) => {
 	return candidates
 		.reduce((acc, curr) => (acc += curr.position + ","), "")
 		.slice(0, -1);
 };
 
 export const decodeCandidates = (encodedCandidates: string) => {
+	if (encodedCandidates === "") return [];
 	const words = getWords();
-	return encodedCandidates.split(",").map((position) => ({
-		word: words[parseInt(position)],
-		position: parseInt(position),
-	}));
+	return encodedCandidates.split(",").map((position) => {
+		const positionValue = parseInt(position);
+		if (Number.isNaN(positionValue)) {
+			throw new Error(
+				`Invalid candidate position: '${position}' is not a number`
+			);
+		} else if (positionValue < 0 || positionValue >= words.length) {
+			throw new Error(
+				`Invalid candidate position: '${position}' does not belong in the list of words`
+			);
+		}
+		return {
+			word: words[parseInt(position)],
+			position: parseInt(position),
+		};
+	});
 };
 
 export const selectRandomWord = (): string => {
-	if (process.env.WORDS !== undefined) {
-		const customWords = process.env.WORDS.split(", ");
-		return customWords[Math.floor(Math.random() * customWords.length)];
-	} else {
-		return words[Math.floor(Math.random() * words.length)];
-	}
+	const wordsList = getWords();
+	return wordsList[Math.floor(Math.random() * wordsList.length)];
 };
 
-export const findCandidates = (
-	guess: string,
-	candidates: { word: string; position: number }[]
-) => {
-	let selectedCandidates: { word: string; position: number }[] = [];
+export const findCandidates = (guess: string, candidates: Candidate[]) => {
+	let selectedCandidates: Candidate[] = [];
 	let minPoints = 50; // set to maximum points - H = 10, P = 1, M = 0
 
 	// if minPoints is updated, then clear candidates, and add the new item that made minPoints change
@@ -125,11 +134,6 @@ export const makeGuess = (guess: string, answer: string) => {
 	}
 
 	return result.join("");
-};
-
-type ValidateGuessResult = {
-	guess?: string;
-	error?: string;
 };
 
 export const validateGuess = (guess: unknown): ValidateGuessResult => {

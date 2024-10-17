@@ -13,3 +13,10 @@ export const sessionConfig: SessionOptions = {
 export interface SessionData {
 	game: WordleGame;
 }
+
+export type ValidateGuessResult = {
+	guess?: string;
+	error?: string;
+};
+
+export type Candidate = { word: string; position: number };
