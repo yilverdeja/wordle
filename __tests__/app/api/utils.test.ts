@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	decodeCandidates,
 	encodeCadidates,
 	findCandidates,
 	getCandidates,
 	getRandomWordsSubset,
+	getSession,
 	getWords,
 	makeGuess,
 	selectRandomWord,
@@ -12,6 +14,7 @@ import {
 import { expect, it, vi, describe, beforeEach } from "vitest";
 import words from "@/data/words";
 import { Candidate } from "@/app/api/game/types";
+import { getIronSession } from "iron-session";
 
 describe("api utils", () => {
 	describe("getWords", () => {
@@ -299,5 +302,52 @@ describe("api utils", () => {
 			expect(result.points).toBe(1);
 			expect(candidates).toEqual(["hello", "world"]);
 		});
+	});
+});
+
+// Mock `getIronSession` and cookies
+vi.mock("iron-session", () => ({
+	getIronSession: vi.fn(),
+}));
+
+vi.mock("next/headers", () => ({
+	cookies: vi.fn(),
+}));
+
+describe("getSession", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("creates a new game if no game exists in the session", async () => {
+		const mockSession = {
+			save: vi.fn(async () => {}),
+		};
+		(getIronSession as any).mockResolvedValue(mockSession);
+
+		const session = await getSession();
+
+		expect(session.game).toBeDefined();
+		expect(session.game.maxNumTries).toBe(10);
+		expect(mockSession.save).toHaveBeenCalled();
+	});
+
+	it("returns existing game if already present in the session", async () => {
+		const existingGame = {
+			status: "pending",
+			maxNumTries: 10,
+			tries: 1,
+			answer: "hello",
+		};
+		const mockSession = {
+			game: existingGame,
+			save: vi.fn(async () => {}),
+		};
+		(getIronSession as any).mockResolvedValue(mockSession);
+
+		const session = await getSession();
+
+		expect(session.game).toEqual(existingGame);
+		expect(mockSession.save).not.toHaveBeenCalled(); // Save should not be called if game already exists
 	});
 });
