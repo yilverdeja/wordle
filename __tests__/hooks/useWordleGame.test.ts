@@ -33,4 +33,16 @@ describe("useWordleGame", () => {
 		expect(result.current.rounds).toBe(0);
 		expect(result.current.answer).toBe(null);
 	});
+
+	it("should not start another game if pending", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.startGame("normal");
+		});
+
+		await waitFor(() => expect(result.current.error).not.toBeNull());
+
+		expect(result.current.error?.type).toBe("start");
+	});
 });
