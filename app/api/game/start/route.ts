@@ -1,14 +1,9 @@
-import words from "@/data/words";
-import { encodeCadidates, getCandidates, getSession } from "../utils";
-
-const selectRandomWord = (): string => {
-	if (process.env.WORDS !== undefined) {
-		const customWords = process.env.WORDS.split(", ");
-		return customWords[Math.floor(Math.random() * customWords.length)];
-	} else {
-		return words[Math.floor(Math.random() * words.length)];
-	}
-};
+import {
+	encodeCadidates,
+	getCandidates,
+	getSession,
+	selectRandomWord,
+} from "../utils";
 
 export async function POST(request: Request) {
 	const session = await getSession();
