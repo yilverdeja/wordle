@@ -2,7 +2,7 @@
 "use client";
 import GuessWordForm from "@/components/GuessWordForm";
 import LetterGrid from "@/components/LetterGrid";
-import useWordleGame from "@/hook/useWordleGame";
+import useWordleGame from "@/hooks/useWordleGame";
 import { useEffect, useState } from "react";
 
 const buttonStyle =
