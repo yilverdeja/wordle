@@ -103,4 +103,121 @@ describe("useWordleGame", () => {
 
 		await waitFor(() => expect(result.current.status).toEqual("win"));
 	});
+
+	it("should fetch the winning state", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.fetchData();
+		});
+
+		await waitFor(() => expect(result.current.status).toEqual("win"));
+
+		expect(result.current.gameType).toBe("normal");
+		expect(result.current.maxRounds).toBe(10);
+		expect(result.current.guessResults).toHaveLength(2);
+		expect(result.current.rounds).toBe(2);
+		expect(result.current.answer).toBe("right");
+	});
+
+	it("should restart the game and lose after max tries", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.startGame("normal");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+		});
+
+		await waitFor(() => expect(result.current.status).toEqual("lost"));
+
+		expect(result.current.guessResults).toHaveLength(10);
+		expect(result.current.rounds).toBe(10);
+		expect(result.current.answer).toBe("right");
+	});
+
+	it("should start an absurdle game", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.startGame("absurdle");
+		});
+
+		await waitFor(() => expect(result.current.status).toEqual("pending"));
+
+		expect(result.current.gameType).toBe("absurdle");
+		expect(result.current.maxRounds).toBe(10);
+		expect(result.current.guessResults).toHaveLength(0);
+		expect(result.current.rounds).toBe(0);
+		expect(result.current.answer).toBe(null);
+	});
+
+	it("should set the answer after 5 tries", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+		});
+
+		await waitFor(() =>
+			expect(result.current.guessResults).toHaveLength(5)
+		);
+
+		expect(result.current.guessResults[0]).toHaveProperty("result", [
+			LetterMatch.Miss,
+			LetterMatch.Miss,
+			LetterMatch.Miss,
+			LetterMatch.Miss,
+			LetterMatch.Miss,
+		]);
+
+		act(() => {
+			result.current.submitGuess("right");
+		});
+
+		await waitFor(() => expect(result.current.status).toEqual("win"));
+	});
+
+	it("should lose in absurdle after max tries reached", async () => {
+		const { result } = renderHook(() => useWordleGame());
+
+		act(() => {
+			result.current.startGame("absurdle");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("right");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+			result.current.submitGuess("");
+		});
+
+		await waitFor(() => expect(result.current.status).toEqual("lost"));
+
+		expect(result.current.guessResults).toHaveLength(10);
+		expect(result.current.guessResults[9]).toHaveProperty("result", [
+			LetterMatch.Hit,
+			LetterMatch.Miss,
+			LetterMatch.Present,
+			LetterMatch.Miss,
+			LetterMatch.Hit,
+		]);
+		expect(result.current.rounds).toBe(10);
+		expect(result.current.answer).toBe("right");
+	});
 });
