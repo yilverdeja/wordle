@@ -55,6 +55,12 @@ To build use
 npm run build
 ```
 
+To perform testing use
+
+```bash
+npm run test
+```
+
 ### Environment Variables
 
 > Note: This is optional. Not adding it will make the server choose from a list of 5-letter words defined at `@/data/words.ts`

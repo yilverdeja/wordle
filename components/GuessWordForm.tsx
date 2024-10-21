@@ -38,11 +38,13 @@ const GuessWordForm = ({
 					type="text"
 					name="guess"
 					id="guess"
+					data-testid="guess-input"
 					placeholder="Make a guess..."
 					disabled={disable}
 				/>
 				<button
 					className={buttonStyle}
+					data-testid="guess-submit"
 					onClick={handleSubmit}
 					disabled={disable}
 				>

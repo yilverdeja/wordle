@@ -7,7 +7,7 @@ import {
 import axios, { AxiosError } from "axios";
 import { useState, useCallback } from "react";
 
-interface WordleGameResponse {
+export interface WordleGameResponse {
 	status: WordleGameStatus;
 	type?: WordleGameType;
 	results?: WordleGameResult[];
@@ -51,7 +51,7 @@ const useWordleGame = () => {
 			setGuessResults(transformResults(data.results!));
 			setRounds(data.tries!);
 			setMaxRounds(data.maxTries!);
-			setAnswer(data.answer!);
+			setAnswer(data.answer && data.answer !== "" ? data.answer : null);
 		} catch (error) {
 			console.error("Fetch data failed:", error);
 			setError({
@@ -75,7 +75,7 @@ const useWordleGame = () => {
 			setGuessResults(transformResults(data.results!));
 			setRounds(data.tries!);
 			setStatus(data.status);
-			setAnswer(data.answer!);
+			setAnswer(data.answer && data.answer !== "" ? data.answer : null);
 		} catch (error) {
 			console.error("Error submitting guess:", error);
 			setError({
@@ -96,6 +96,7 @@ const useWordleGame = () => {
 				{ gameType }
 			);
 			const data = response.data;
+			setGameType(data.type!);
 			setGuessResults([]);
 			setStatus(data.status);
 			setRounds(0);
