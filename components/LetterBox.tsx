@@ -19,6 +19,7 @@ const getBoxStyle = (state: LetterMatch) => {
 const LetterBox = ({ letter, state }: Props) => {
 	return (
 		<span
+			data-testid={`letter-box-${state}`}
 			className={`text-2xl w-10 h-10 flex flex-row justify-center items-center text-white ${getBoxStyle(
 				state
 			)}`}
